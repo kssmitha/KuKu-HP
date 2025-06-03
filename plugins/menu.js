@@ -4,7 +4,7 @@ const { cmd, commands } = require("../command");
 cmd(
   {
     pattern: "menu",
-    alise: ["getmenu"],
+    alise: ["info"],
     desc: "get cmd list",
     category: "main",
     filename: __filename,
@@ -60,39 +60,29 @@ cmd(
       let madeMenu = `👋 *Hello  ${pushname}*
 
 
-| *MAIN COMMANDS* |
-    ▫️.alive
-    ▫️.menu
-    ▫️.ai <text>
-    ▫️.system
-    ▫️.owner
-| *DOWNLOAD COMMANDS* |
-    ▫️.song <text>
-    ▫️.video <text>
-    ▫️.fb <link>
-| *GROUP COMMANDS* |
-${menu.group}
-| *OWNER COMMANDS* |
-    ▫️.restart
-    ▫️.update
-| *CONVERT COMMANDS* |
-    ▫️.sticker <reply img>
-    ▫️.img <reply sticker>
-    ▫️.tr <lang><text>
-    ▫️.tts <text>
-| *SEARCH COMMANDS* |
-${menu.search}
-
-
-🥶𝐌𝐚𝐝𝐞 𝐛𝐲 𝐒_𝐈_𝐇_𝐈_𝐋_𝐄_𝐋🥶
-
-> ROBIN MENU MSG
+╭━━━〔 🌟 *BOT MENU* 🌟 〕━━━╮
+┃
+┃ 👑 *Owner Info*
+┃   • Name: K Sasmitha
+┃   • WhatsApp: wa.me/+94752425527
+┃
+┃ 🎁 *Redeems*
+┃   • 
+┃   • 
+┃
+┃ 📜 *Other Commands*
+┃   • !help - Show this menu
+┃   • !info - Bot info
+┃   • !ping - Check bot status
+┃
+┃ > MADE BY Ks
+╰━━━━━━━━━━━━━━━━━━━━╯
 `;
       await robin.sendMessage(
         from,
         {
           image: {
-            url: "https://raw.githubusercontent.com/Dark-Robin/Bot-Helper/refs/heads/main/autoimage/Bot%20robin%20menu.jpg",
+            url: "https://i.ibb.co/hkgKGVX/Chat-GPT-Image-May-25-2025-10-25-36-PM.png",
           },
           caption: madeMenu,
         },
