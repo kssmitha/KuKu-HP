@@ -1,7 +1,8 @@
 module.exports = {
-  name: 'rules',
-  description: 'Shows the group rules',
-  async execute(sock, m, args) {
+  pattern: 'rules',
+  alias: ['pani_nithi', 'pani_rules'],
+  desc: 'Send the Pani Discord rules',
+  function: async (client, m, { reply }) => {
     const rulesText = `
 🛑 *පැනි නීති පොත* 🛑
 
@@ -18,8 +19,8 @@ module.exports = {
 09. Whatsapp ලින්ක් දැමීම තහනම්.
 
 > HoneyPani666
-    `.trim();
+    `;
 
-    await sock.sendMessage(m.key.remoteJid, { text: rulesText }, { quoted: m });
+    await client.sendMessage(m.key.remoteJid, { text: rulesText }, { quoted: m });
   }
-}
+};
