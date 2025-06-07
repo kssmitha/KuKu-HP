@@ -106,7 +106,7 @@ async function connectToWA() {
     };
 
     // 🔁 Import all commands from ./commands/index.js
-    const events = require("./commands");
+    const events = require("./command");
 
     if (isCmd) {
       const cmd =
