@@ -2,7 +2,6 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
-  jidNormalizedUser,
   getContentType,
   fetchLatestBaileysVersion,
   Browsers,
@@ -10,10 +9,10 @@ const {
 
 const P = require("pino");
 const fs = require("fs");
-const axios = require("axios");
 const qrcode = require("qrcode-terminal");
 const config = require("./config");
 const { getBuffer, getGroupAdmins } = require("./lib/functions");
+const path = require("path");
 
 const ownerNumber = config.OWNER_NUM || [];
 
@@ -53,6 +52,18 @@ async function connectToWA() {
   });
 
   robin.ev.on("creds.update", saveCreds);
+
+  // LOAD ALL COMMANDS FROM plugins FOLDER
+  const commands = [];
+  const pluginsPath = path.join(__dirname, "plugins");
+  const pluginFiles = fs
+    .readdirSync(pluginsPath)
+    .filter((file) => file.endsWith(".js"));
+
+  for (const file of pluginFiles) {
+    const command = require(path.join(pluginsPath, file));
+    commands.push(command);
+  }
 
   robin.ev.on("messages.upsert", async (meks) => {
     const mek = meks.messages[0];
@@ -97,7 +108,9 @@ async function connectToWA() {
       ? await robin.groupMetadata(from).catch(() => {})
       : null;
     const groupAdmins = isGroup ? getGroupAdmins(groupMetadata?.participants) : [];
-    const isBotAdmins = isGroup ? groupAdmins.includes(botNumber + "@s.whatsapp.net") : false;
+    const isBotAdmins = isGroup
+      ? groupAdmins.includes(botNumber + "@s.whatsapp.net")
+      : false;
     const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
 
     const reply = (text) => {
@@ -106,16 +119,35 @@ async function connectToWA() {
 
     if (!isCmd) return;
 
-    // 🔻 Handle Commands
-    switch (commandName) {
-      case "alive":
-        return reply("✅ Bot is alive and working!");
-      case "menu":
-        return reply(`📜 *Menu*\n\n• !alive\n• !menu\n• !rules`);
-      case "rules":
-        return reply(`📌 *Group Rules:*\n\n1. No spam\n2. Be respectful\n3. Don't post illegal content`);
-      default:
-        return; // Unknown command
+    // FIND COMMAND FROM loaded commands
+    const cmd =
+      commands.find((c) => c.pattern === commandName) ||
+      commands.find((c) => c.alias && c.alias.includes(commandName));
+
+    if (cmd) {
+      try {
+        await cmd.function(robin, mek, {
+          from,
+          body,
+          isCmd,
+          commandName,
+          args,
+          q,
+          isGroup,
+          sender,
+          senderNumber,
+          botNumber,
+          isOwner,
+          isAdmins,
+          isBotAdmins,
+          reply,
+        });
+      } catch (error) {
+        console.error("[COMMAND ERROR]", error);
+        reply("❌ Command එක ක්‍රියාත්මක කිරීමේ දෝෂයකි.");
+      }
+    } else {
+      reply("❌ Unknown command. Use !menu to see commands.");
     }
   });
 }
