@@ -1,96 +1,52 @@
-const { readEnv } = require("../lib/database");
-const { cmd, commands } = require("../command");
+module.exports = {
+  pattern: 'menu',
+  alias: ['help', 'commands'],
+  desc: 'Show bot menu with redeem links and owner info',
+  function: async (client, m, { reply }) => {
+    const menuText = `
+╔══════════════════════════════╗
+          *📋 BOT MENU*          
+╚══════════════════════════════╝
 
-cmd(
-  {
-    pattern: "menu",
-    alise: ["info"],
-    desc: "get cmd list",
-    category: "main",
-    filename: __filename,
-  },
-  async (
-    robin,
-    mek,
-    m,
-    {
-      from,
-      quoted,
-      body,
-      isCmd,
-      command,
-      args,
-      q,
-      isGroup,
-      sender,
-      senderNumber,
-      botNumber2,
-      botNumber,
-      pushname,
-      isMe,
-      isOwner,
-      groupMetadata,
-      groupName,
-      participants,
-      groupAdmins,
-      isBotAdmins,
-      isAdmins,
-      reply,
-    }
-  ) => {
-    try {
-      const config = await readEnv();
-      let menu = {
-        main: "",
-        download: "",
-        group: "",
-        owner: "",
-        convert: "",
-        search: "",
-      };
+✨ *Available Commands:*
 
-      for (let i = 0; i < commands.length; i++) {
-        if (commands[i].pattern && !commands[i].dontAddCommandList) {
-          menu[
-            commands[i].category
-          ] += `${config.PREFIX}${commands[i].pattern}\n`;
-        }
-      }
+  ➤ *!alive*  — Check if the bot is online  
+  ➤ *!rules*  — View server/group rules  
+  ➤ *!menu*   — Show this menu  
 
-      let madeMenu = `👋 *Hello  ${pushname}*
+📥 *Redeem Links:*
 
+  • *awadane*          
+  • *sigma*            
+  • *wishala karadarayak* 
+  • *aaah*             
+  • *ed*               
+  • *ew*               
+  • *ata*              
+  • *patiyo*           
+  • *hello*            
+  • *kewada*           
+  • *thotamata*        
+  • *honey*            
+  • *heei*            
+  • *kanawa*           
+  • *uttakkewa*       
 
-╭━━━〔 🌟 *BOT MENU* 🌟 〕━━━╮
-┃
-┃ 👑 *Owner Info*
-┃   • Name: K Sasmitha
-┃   • WhatsApp: wa.me/+94752425527
-┃
-┃ 🎁 *Redeems*
-┃   • 
-┃   • 
-┃
-┃ 📜 *Other Commands*
-┃   • !help - Show this menu
-┃   • !info - Bot info
-┃   • !ping - Check bot status
-┃
-┃ > MADE BY Ks
-╰━━━━━━━━━━━━━━━━━━━━╯
+───────────────────────────────
+👤 *Owner Information:*
+
+  Name: *K Sasmitha*  
+  Contact: +94 75 242 5527
+
+═══════════════════════════════
+© 2025 POWERD BY දුකාගෙ දෝණී 
 `;
-      await robin.sendMessage(
-        from,
-        {
-          image: {
-            url: "https://i.ibb.co/hkgKGVX/Chat-GPT-Image-May-25-2025-10-25-36-PM.png",
-          },
-          caption: madeMenu,
-        },
-        { quoted: mek }
-      );
-    } catch (e) {
-      console.log(e);
-      reply(`${e}`);
-    }
+
+    const imageUrl = "https://i.ibb.co/hkgKGVX/Chat-GPT-Image-May-25-2025-10-25-36-PM.png"; // Replace with your picture link
+
+    await client.sendMessage(m.key.remoteJid, {
+      image: { url: imageUrl },
+      caption: menuText,
+    }, { quoted: m });
   }
-);
+};
