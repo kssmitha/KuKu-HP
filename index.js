@@ -2,6 +2,7 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
+  jidNormalizedUser,
   getContentType,
   fetchLatestBaileysVersion,
   Browsers,
@@ -9,10 +10,10 @@ const {
 
 const P = require("pino");
 const fs = require("fs");
-const path = require("path");
+const axios = require("axios");
 const qrcode = require("qrcode-terminal");
-const { getGroupAdmins } = require("./lib/functions");
 const config = require("./config");
+const { getBuffer, getGroupAdmins } = require("./lib/functions");
 
 const ownerNumber = config.OWNER_NUM || [];
 
@@ -28,18 +29,6 @@ async function connectToWA() {
     auth: state,
     version,
   });
-
-  // Load commands from plugins folder
-  const commands = [];
-  const pluginsPath = path.join(__dirname, "plugins");
-  const pluginFiles = fs
-    .readdirSync(pluginsPath)
-    .filter((file) => file.endsWith(".js"));
-
-  for (const file of pluginFiles) {
-    const command = require(path.join(pluginsPath, file));
-    commands.push(command);
-  }
 
   robin.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
@@ -108,43 +97,25 @@ async function connectToWA() {
       ? await robin.groupMetadata(from).catch(() => {})
       : null;
     const groupAdmins = isGroup ? getGroupAdmins(groupMetadata?.participants) : [];
-    const isBotAdmins = isGroup
-      ? groupAdmins.includes(botNumber + "@s.whatsapp.net")
-      : false;
+    const isBotAdmins = isGroup ? groupAdmins.includes(botNumber + "@s.whatsapp.net") : false;
     const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
 
     const reply = (text) => {
       robin.sendMessage(from, { text }, { quoted: mek });
     };
 
-    if (isCmd) {
-      const cmd =
-        commands.find((c) => c.pattern === commandName) ||
-        commands.find((c) => c.alias && c.alias.includes(commandName));
+    if (!isCmd) return;
 
-      if (cmd) {
-        try {
-          await cmd.function(robin, mek, {
-            from,
-            body,
-            isCmd,
-            commandName,
-            args,
-            q,
-            isGroup,
-            sender,
-            senderNumber,
-            botNumber,
-            isOwner,
-            isAdmins,
-            isBotAdmins,
-            reply,
-          });
-        } catch (error) {
-          console.error("[COMMAND ERROR]", error);
-          reply("❌ Error executing command.");
-        }
-      }
+    // 🔻 Handle Commands
+    switch (commandName) {
+      case "alive":
+        return reply("✅ Bot is alive and working!");
+      case "menu":
+        return reply(`📜 *Menu*\n\n• !alive\n• !menu\n• !rules`);
+      case "rules":
+        return reply(`📌 *Group Rules:*\n\n1. No spam\n2. Be respectful\n3. Don't post illegal content`);
+      default:
+        return; // Unknown command
     }
   });
 }
