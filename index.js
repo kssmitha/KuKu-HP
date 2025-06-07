@@ -13,6 +13,7 @@ const fs = require("fs");
 const axios = require("axios");
 const { getBuffer, getGroupAdmins } = require("./lib/functions");
 const config = require("./config");
+const qrcode = require("qrcode-terminal");
 
 const ownerNumber = config.OWNER_NUM || [];
 
@@ -24,17 +25,23 @@ async function connectToWA() {
 
   const robin = makeWASocket({
     logger: P({ level: "silent" }),
-    printQRInTerminal: true,
     browser: Browsers.macOS("Firefox"),
     auth: state,
     version,
   });
 
   robin.ev.on("connection.update", (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, lastDisconnect, qr } = update;
+
+    // ✅ Print QR manually to terminal
+    if (qr) {
+      console.log("📲 Scan the QR Code Below:");
+      qrcode.generate(qr, { small: true });
+    }
+
     if (connection === "close") {
       if (
-        lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+        lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut
       ) {
         console.log("Reconnecting...");
         connectToWA();
@@ -42,7 +49,7 @@ async function connectToWA() {
         console.log("Connection closed. You are logged out.");
       }
     } else if (connection === "open") {
-      console.log("Bot connected to WhatsApp ✅");
+      console.log("✅ Bot connected to WhatsApp");
     }
   });
 
@@ -98,7 +105,7 @@ async function connectToWA() {
       robin.sendMessage(from, { text }, { quoted: mek });
     };
 
-    // Import commands
+    // 🔁 Import all commands from ./commands/index.js
     const events = require("./commands");
 
     if (isCmd) {
@@ -107,10 +114,14 @@ async function connectToWA() {
         events.commands.find((c) => c.alias && c.alias.includes(commandName));
       if (cmd) {
         try {
-          await cmd.function(robin, mek, { from, body, isCmd, commandName, args, q, isGroup, sender, senderNumber, botNumber, isOwner, isAdmins, isBotAdmins, reply });
+          await cmd.function(robin, mek, {
+            from, body, isCmd, commandName, args, q,
+            isGroup, sender, senderNumber, botNumber,
+            isOwner, isAdmins, isBotAdmins, reply
+          });
         } catch (error) {
           console.error("[COMMAND ERROR]", error);
-          reply("Error executing command.");
+          reply("❌ Error executing command.");
         }
       }
     }
