@@ -1,20 +1,16 @@
-var commands = [];
-
 function cmd(info, func) {
     var data = info;
     data.function = func;
+
+    // 🔍 මෙන්න මෙතන දැමිය යුතුයි
+    console.log("[REGISTERING COMMAND]", data.pattern);
+
     if (!data.dontAddCommandList) data.dontAddCommandList = true;
-    if (!info.desc) info.desc = true;
+    if (!data.desc) data.desc = '';
     if (!data.fromMe) data.fromMe = false;
-    if (!info.category) data.category = true;
-    if(!info.filename) data.filename = true;
+    if (!data.category) data.category = 'misc';
+    if (!data.filename) data.filename = 'Not Provided';
+
     commands.push(data);
     return data;
 }
-module.exports = {
-    cmd,
-    AddCommand:cmd,
-    Function:cmd,
-    Module:cmd,
-    commands,
-};
