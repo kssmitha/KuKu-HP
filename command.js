@@ -1,8 +1,9 @@
+var commands = [];
+
 function cmd(info, func) {
     var data = info;
     data.function = func;
 
-    // 🔍 මෙන්න මෙතන දැමිය යුතුයි
     console.log("[REGISTERING COMMAND]", data.pattern);
 
     if (!data.dontAddCommandList) data.dontAddCommandList = true;
@@ -14,3 +15,8 @@ function cmd(info, func) {
     commands.push(data);
     return data;
 }
+
+module.exports = {
+  cmd,
+  commands,
+};
